@@ -8,7 +8,7 @@ proc _list_arithmetic {l op} {
 }
 
 proc load_csv_data {fileName col {targetField beta} {bIgnoreAtom 1} {mol top}} {
-    # The target data is a pandas DataFRame output where the first four columns are reserved for identifiation purposes.
+    # The target data is a pandas DataFrame output where the first four columns are reserved for identification purposes.
     # Nominally these are: key, segname, resid, name
     # Note: This is zero-indexed so the first data column is 0.
     # Secondary usage is to sum and subtract columns. Will parse columns in the format
@@ -61,3 +61,26 @@ proc load_csv_data {fileName col {targetField beta} {bIgnoreAtom 1} {mol top}} {
     }
     puts "= = = CSV data loaded from $fileName"
 }
+
+proc reset_reps_to_field {{targetField beta} {mol top} {newRepresentation NewCartoon} {newMaterial Opaque}} {
+
+    set all [atomselect top all]
+    set listValues [lsort -uniq [$all get $targetField]]
+    # = = = Reset representations
+    set nreps [molinfo $mol get numreps]
+    for { set i 0 } { $i < $nreps} {incr i} {
+        mol delrep 0 $mol
+    }
+    set c 0
+    foreach val $listValues {
+        mol color ColorID $c
+        mol representation $newRepresentation
+        mol selection "$targetField $val"
+        mol material $newMaterial
+        mol addrep $mol
+        incr c
+    }
+    puts "= = = Graphical representations reset."
+}
+
+puts "= = = TCL loaded. The procs load_csv_data and reset_reps_to_field have been made available"
